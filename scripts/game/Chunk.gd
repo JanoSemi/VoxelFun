@@ -309,6 +309,11 @@ const block_types = {
 		Side.right:Vector2(3,2),Side.front:Vector2(3,2),Side.back:Vector2(3,2),
 		"Tags":[]
 		},
+	"Glass":{
+		Side.top:Vector2(5,0),Side.bottom:Vector2(5,0),Side.left:Vector2(5,0),
+		Side.right:Vector2(5,0),Side.front:Vector2(5,0),Side.back:Vector2(5,0),
+		"Tags":[Tags.Transparent]
+		},
 	"Diamond":{
 		Side.top:Vector2(4,2),Side.bottom:Vector2(4,2),Side.left:Vector2(4,2),
 		Side.right:Vector2(4,2),Side.front:Vector2(4,2),Side.back:Vector2(4,2),

@@ -242,12 +242,14 @@ bbcode_text = "[center][b]VoxelFun Sources[/b][/center]
 [url=https://www.jetbrains.com/lp/mono/]JetBrains Mono v2.304[/url]
 [url=https://icons8.com/icon/13805/world-map]World Map[/url] icon by [url=https://icons8.com]Icons8[/url]
 Explosion sound by [url=https://www.videvo.net/sound-effect/mi-explosion-03-hpx/251585/]Videvo[/url]
-Explosion particle by [url=https://kenney.nl/assets/smoke-particles]Kenney[/url]"
+Explosion particle by [url=https://kenney.nl/assets/smoke-particles]Kenney[/url]
+Some textures from [url=https://github.com/godotengine/godot-demo-projects/blob/fcc7d5c7231d291f2ebd88459c52eabcced34dd4/3d/voxel/world/textures/texture_sheet.png]Godot Voxel Demo[/url]"
 text = "VoxelFun Sources
 JetBrains Mono v2.304
 World Map icon by Icons8
 Explosion sound by Videvo
-Explosion particle by Kenney"
+Explosion particle by Kenney
+Some textures from Godot Voxel Demo"
 
 [node name="License" type="Label" parent="AboutDialog/TabContainer"]
 visible = false

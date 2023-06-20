@@ -22,3 +22,4 @@
 * [World Map](https://icons8.com/icon/13805/world-map) icon by [Icons8](https://icons8.com)
 * Explosion sound by [Videvo](https://www.videvo.net/sound-effect/mi-explosion-03-hpx/251585/)
 * Explosion particle by [Kenney](https://kenney.nl/assets/smoke-particles)
+* Some textures from [Godot Voxel Demo](https://github.com/godotengine/godot-demo-projects/blob/fcc7d5c7231d291f2ebd88459c52eabcced34dd4/3d/voxel/world/textures/texture_sheet.png)
