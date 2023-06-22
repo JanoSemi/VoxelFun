@@ -314,6 +314,16 @@ const block_types = {
 		Side.right:Vector2(5,0),Side.front:Vector2(5,0),Side.back:Vector2(5,0),
 		"Tags":[Tags.Transparent]
 		},
+	"Bookcase":{
+		Side.top:Vector2(4,0),Side.bottom:Vector2(4,0),Side.left:Vector2(5,1),
+		Side.right:Vector2(5,1),Side.front:Vector2(4,0),Side.back:Vector2(4,0),
+		"Tags":[]
+		},
+	"Bookcase 1":{
+		Side.top:Vector2(4,0),Side.bottom:Vector2(4,0),Side.left:Vector2(4,0),
+		Side.right:Vector2(4,0),Side.front:Vector2(5,1),Side.back:Vector2(5,1),
+		"Tags":[]
+		},
 	"Diamond":{
 		Side.top:Vector2(4,2),Side.bottom:Vector2(4,2),Side.left:Vector2(4,2),
 		Side.right:Vector2(4,2),Side.front:Vector2(4,2),Side.back:Vector2(4,2),
