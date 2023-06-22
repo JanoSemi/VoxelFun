@@ -11,6 +11,8 @@ onready var selected_block_name: Label = $CameraBase/Camera/SelectedBlockPreview
 onready var block_dialog: PopupPanel = $CameraBase/Camera/BlockPopup
 onready var blocks_list: ItemList = $CameraBase/Camera/BlockPopup/List
 onready var headlamp: SpotLight = $CameraBase/Headlamp
+onready var voice_player: AudioStreamPlayer3D = $CameraBase/VoiceOut
+onready var voice_playback: AudioStreamGeneratorPlayback = voice_player.get_stream_playback()
 # Reset values
 onready var initial_position: Vector3 = translation
 onready var initial_rotation: Vector3 = rotation_degrees
@@ -47,6 +49,7 @@ func finished():
 	if not (not get_tree().has_network_peer() or is_network_master()):
 		return
 	update_block_preview()
+	voice_player.queue_free()
 	# Setup blocks list
 	blocks_list.clear()
 	var idx = 0
@@ -153,6 +156,8 @@ func _physics_process(delta):
 				rpc("update_headlamp", headlamp.light_energy)
 		if get_tree().has_network_peer():
 			rpc("update", translation, rotation_degrees, camera_base.rotation_degrees.x)
+			var effect: AudioEffectCapture = AudioServer.get_bus_effect(AudioServer.get_bus_index("VoiceIn"), 0)
+			rpc("receive_voice_buffer", effect.get_buffer(effect.get_frames_available()))
 
 
 func initialize(id: int, info: Dictionary):
@@ -197,6 +202,13 @@ remote func update(pos: Vector3, rot: Vector3, head_x: int):
 
 remote func update_headlamp(energy: float):
 	headlamp.light_energy = energy
+
+
+remote func receive_voice_buffer(buffer: PoolVector2Array):
+	var frame = 0
+	for _i in range(0, buffer.size()):
+		if voice_playback.push_frame(buffer[frame]):
+			frame += 1
 
 
 func _on_block_popup_about_to_show():

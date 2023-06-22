@@ -12,12 +12,14 @@ const COLLECTED_DIAMONDS = "collected_diamonds"
 const SOUND_SECTION: String = "Sound"
 const MASTER_VOLUME: String = "master_volume"
 const SFX_VOLUME: String = "sfx_volume"
+const VOICE_VOLUME: String = "voice_volume"
 # Config values
 var coins: int = 0
 var diamonds: int = 0
 var collected_diamonds: int = 0
 var master_volume: float = 1.0
 var sfx_volume: float = 1.0
+var voice_volume: float = 1.0
 
 
 func _ready():
@@ -35,6 +37,7 @@ func collect_diamond():
 func apply():
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), linear2db(master_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), linear2db(sfx_volume))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Voice"), linear2db(voice_volume))
 
 
 func read():
@@ -45,6 +48,7 @@ func read():
 	collected_diamonds = config_file.get_value(SCORES, COLLECTED_DIAMONDS, collected_diamonds)
 	master_volume = config_file.get_value(SOUND_SECTION, MASTER_VOLUME, master_volume)
 	sfx_volume = config_file.get_value(SOUND_SECTION, SFX_VOLUME, sfx_volume)
+	voice_volume = config_file.get_value(SOUND_SECTION, VOICE_VOLUME, voice_volume)
 	apply()
 
 
@@ -55,4 +59,5 @@ func save():
 	config_file.set_value(SCORES, COLLECTED_DIAMONDS, collected_diamonds)
 	config_file.set_value(SOUND_SECTION, MASTER_VOLUME, master_volume)
 	config_file.set_value(SOUND_SECTION, SFX_VOLUME, sfx_volume)
+	config_file.set_value(SOUND_SECTION, VOICE_VOLUME, voice_volume)
 	config_file.save(CONFIG_PATH)

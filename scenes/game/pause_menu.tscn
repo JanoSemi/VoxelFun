@@ -155,7 +155,7 @@ text = "Quit"
 
 [node name="SettingsDialog" type="ConfirmationDialog" parent="."]
 margin_right = 370.0
-margin_bottom = 100.0
+margin_bottom = 126.0
 window_title = "Settings"
 script = ExtResource( 2 )
 
@@ -163,7 +163,7 @@ script = ExtResource( 2 )
 margin_left = 8.0
 margin_top = 8.0
 margin_right = 362.0
-margin_bottom = 56.0
+margin_bottom = 82.0
 columns = 2
 
 [node name="MasterLabel" type="Label" parent="SettingsDialog/GridContainer"]
@@ -191,6 +191,22 @@ margin_left = 154.0
 margin_top = 26.0
 margin_right = 354.0
 margin_bottom = 42.0
+rect_min_size = Vector2( 200, 0 )
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="VoiceLabel" type="Label" parent="SettingsDialog/GridContainer"]
+margin_top = 52.0
+margin_right = 150.0
+margin_bottom = 74.0
+text = "Voice Volume: "
+
+[node name="VoiceSlider" type="HSlider" parent="SettingsDialog/GridContainer"]
+margin_left = 154.0
+margin_top = 52.0
+margin_right = 354.0
+margin_bottom = 68.0
 rect_min_size = Vector2( 200, 0 )
 max_value = 1.0
 step = 0.01
