@@ -3,7 +3,7 @@ extends Spatial
 const PLAYER = preload("res://scenes/game/player.tscn")
 var initial_world_path = "user://worlds/default"
 var initial_world_type = null
-onready var diamonds_label: Label = $DiamondsView/CenterContainer/Label
+onready var money_label: Label = $MoneyView/CenterContainer/Label
 var pw
 onready var players: Spatial = $Players
 onready var player: Player
@@ -27,10 +27,10 @@ func _ready():
 	mrt.update_scale = false
 	mrt.remote_path = "../../../Map/MapContainer/MapViewport/Camera"
 	player.add_child(mrt)
-	# Setup diamonds display
-	update_diamonds_label()
+	# First money view update
+	update_money_view()
 	# warning-ignore:return_value_discarded
-	Global.connect("diamond_collected", self, "update_diamonds_label")
+	Global.connect("money_changed", self, "update_money_view")
 	# Connect network signals
 	# warning-ignore:return_value_discarded
 	get_tree().connect("server_disconnected", get_tree(), "change_scene", ["res://scenes/server_disonnected.tscn"])
@@ -87,8 +87,8 @@ func load_player() -> Player:
 	return p
 
 
-func update_diamonds_label():
-	diamonds_label.text = str(Global.diamonds)
+func update_money_view():
+	money_label.text = "Money: %s\nGold: %s\nDiamonds: %s" % [Global.money, Global.gold, Global.diamonds]
 
 
 remote func receive_world(world: Dictionary):

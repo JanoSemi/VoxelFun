@@ -14,9 +14,16 @@ static func generate_surface(_height, _x, y, _z):
 
 static func generate_details(c, rng, _ground_height):
 	# Place diamond
-	var b = c.BlockData.new()
-	b.create("Diamond")
-	var x = rng.randi_range(0, int(c.DIMENSION.x))
-	var y = rng.randi_range(1, 10)
-	var z = rng.randi_range(0, int(c.DIMENSION.z))
-	c._set_block_data(x, y, z, b, true, false)
+	var db = c.BlockData.new()
+	db.create("Diamond")
+	var dx = rng.randi_range(0, int(c.DIMENSION.x))
+	var dy = rng.randi_range(1, 10)
+	var dz = rng.randi_range(0, int(c.DIMENSION.z))
+	c._set_block_data(dx, dy, dz, db, true, false)
+	# Place gold
+	var gb = c.BlockData.new()
+	gb.create("Gold")
+	var gx = rng.randi_range(0, int(c.DIMENSION.x))
+	var gy = rng.randi_range(1, 10)
+	var gz = rng.randi_range(0, int(c.DIMENSION.z))
+	c._set_block_data(gx, gy, gz, gb, true, false)

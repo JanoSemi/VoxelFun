@@ -126,6 +126,8 @@ func change_block(cx, cz, bx, by, bz, t, update = true, rpc = true):
 		if c._block_data[bx][by][bz].type != t:
 			if c._block_data[bx][by][bz].type == "Diamond":
 				Global.collect_diamond()
+			if c._block_data[bx][by][bz].type == "Gold":
+				Global.collect_gold()
 			c._block_data[bx][by][bz].create(t)
 			if update:
 				_update_chunk(cx, cz)
