@@ -14,6 +14,7 @@ onready var initial_pos = translation
 
 
 func _ready():
+	pause_mode = Node.PAUSE_MODE_STOP
 	var animation_player = $Model/AnimationPlayer
 	animation_player.playback_speed = animation_speed
 	animation_player.get_animation(animation_name).loop = true

@@ -1,7 +1,6 @@
 extends ColorRect
 
 
-var player: Player
 onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 
@@ -21,13 +20,13 @@ func _process(_delta):
 func pause():
 	animation_player.play("show")
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	player.paused = true
+	get_tree().paused = true
 
 
 func resume():
 	animation_player.play("hide")
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	player.paused = false
+	get_tree().paused = false
 
 
 func _main_menu():

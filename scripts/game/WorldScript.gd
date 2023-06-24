@@ -18,7 +18,6 @@ var chunk_pos = Vector2()
 func _ready():
 	# Load my player
 	player = load_player()
-	get_node("../PauseMenu").player = player
 	if get_tree().has_network_peer():
 		player.initialize(get_tree().get_network_unique_id(), Net.my_player)
 	var mrt = RemoteTransform.new()

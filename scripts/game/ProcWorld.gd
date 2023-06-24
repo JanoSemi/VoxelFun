@@ -34,6 +34,7 @@ func _init(path):
 
 func _ready():
 	name = "ProcWorld"
+	pause_mode = Node.PAUSE_MODE_PROCESS
 	var file = File.new()
 	if world_path and file.file_exists(world_path):
 		file.open(world_path, File.READ)

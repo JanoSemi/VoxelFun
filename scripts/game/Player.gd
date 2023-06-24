@@ -30,7 +30,6 @@ const gravity = 9.8
 var jump_vel = 5
 var fly: bool = false
 
-var paused = false
 var is_finished: bool = false
 
 signal place_block(pos, norm, type)
@@ -74,14 +73,13 @@ func _input(event):
 	if not (not get_tree().has_network_peer() or is_network_master()) or not is_finished:
 		return
 	# Mouse movement
-	if not paused:
-		if event is InputEventMouseMotion:
-			self.rotate_y(deg2rad(-event.relative.x * mouse_sensitivity))
-			
-			var x_delta = event.relative.y * mouse_sensitivity
-			if camera_x_rotation + x_delta > -90 and camera_x_rotation + x_delta < 90:
-				camera_base.rotate_x(deg2rad(-x_delta))
-				camera_x_rotation += x_delta
+	if event is InputEventMouseMotion:
+		self.rotate_y(deg2rad(-event.relative.x * mouse_sensitivity))
+		
+		var x_delta = event.relative.y * mouse_sensitivity
+		if camera_x_rotation + x_delta > -90 and camera_x_rotation + x_delta < 90:
+			camera_base.rotate_x(deg2rad(-x_delta))
+			camera_x_rotation += x_delta
 
 
 func _physics_process(delta):
@@ -93,71 +91,70 @@ func _physics_process(delta):
 	var py = self.translation.y
 	var pz = self.translation.z - cz * Chunk.DIMENSION.z
 	info_label.text = "Chunk (%d, %d) pos (%d, %d, %d)" % [cx, cz, px, py, pz]
-	if not paused:
-		# Check the raycast
-		if raycast.is_colliding():
-			var pos = raycast.get_collision_point()
-			var norm = raycast.get_collision_normal()
-			emit_signal("highlight_block", pos, norm)
-			if Input.is_action_just_pressed("click"):
-				print("Click")
-				emit_signal("destroy_block", pos, norm, raycast.get_collider())
-			elif Input.is_action_just_pressed("right_click"):
-				emit_signal("place_block", pos, norm, selected_block)
-		else:
-			emit_signal("unhighlight_block")
+	# Check the raycast
+	if raycast.is_colliding():
+		var pos = raycast.get_collision_point()
+		var norm = raycast.get_collision_normal()
+		emit_signal("highlight_block", pos, norm)
+		if Input.is_action_just_pressed("click"):
+			print("Click")
+			emit_signal("destroy_block", pos, norm, raycast.get_collider())
+		elif Input.is_action_just_pressed("right_click"):
+			emit_signal("place_block", pos, norm, selected_block)
+	else:
+		emit_signal("unhighlight_block")
+	
+	if Input.is_action_just_released("open_block_dialog"):
+		block_dialog.popup_centered()
+	
+	var power_multipler = (Input.get_action_strength("run") + 1)
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not fly:
+		velocity.y = jump_vel * power_multipler
+	else:
+		var camera_base_basis = self.get_global_transform().basis
 		
-		if Input.is_action_just_released("open_block_dialog"):
-			block_dialog.popup_centered()
+		var direction = Vector3()
 		
-		var power_multipler = (Input.get_action_strength("run") + 1)
-		if Input.is_action_just_pressed("jump") and is_on_floor() and not fly:
-			velocity.y = jump_vel * power_multipler
-		else:
-			var camera_base_basis = self.get_global_transform().basis
-			
-			var direction = Vector3()
-			
-			if Input.is_action_pressed("forward"):
-				direction -= camera_base_basis.z #forward is negative in Godot
-				if stair_detector.is_colliding() and is_on_floor() and not ceiling_detector.is_colliding() and not fly:
-					velocity.y = jump_vel * power_multipler
-			if Input.is_action_pressed("backward"):
-				direction += camera_base_basis.z
-			
-			# Strafe
-			if Input.is_action_pressed("left"):
-				direction -= camera_base_basis.x
-			if Input.is_action_pressed("right"):
-				direction += camera_base_basis.x
-			
-			# Process inputs (only in the xz plane)
-			var speed_input = SPEED * power_multipler
-			velocity.x = direction.x * speed_input
-			velocity.z = direction.z * speed_input
-		if fly:
-			velocity.y = move_toward(velocity.y, Input.get_axis("sink", "jump") * jump_vel, delta * 10)
-		else:
-			velocity.y -= gravity * delta
-		velocity = move_and_slide(velocity, Vector3.UP)
-		if Input.is_action_just_released("reset_player"):
-			translation = initial_position
-			rotation_degrees = initial_rotation
-			velocity = Vector3.ZERO
-		if Input.is_action_just_released("toggle_fly"):
-			fly = not fly
-		if Input.is_action_just_released("headlamp"):
-			match headlamp.light_energy:
-				0.0: headlamp.light_energy = 1.0
-				1.0: headlamp.light_energy = 2.0
-				2.0: headlamp.light_energy = 0.0
-			if get_tree().has_network_peer():
-				Net.my_player["headlamp_energy"] = headlamp.light_energy
-				rpc("update_headlamp", headlamp.light_energy)
+		if Input.is_action_pressed("forward"):
+			direction -= camera_base_basis.z #forward is negative in Godot
+			if stair_detector.is_colliding() and is_on_floor() and not ceiling_detector.is_colliding() and not fly:
+				velocity.y = jump_vel * power_multipler
+		if Input.is_action_pressed("backward"):
+			direction += camera_base_basis.z
+		
+		# Strafe
+		if Input.is_action_pressed("left"):
+			direction -= camera_base_basis.x
+		if Input.is_action_pressed("right"):
+			direction += camera_base_basis.x
+		
+		# Process inputs (only in the xz plane)
+		var speed_input = SPEED * power_multipler
+		velocity.x = direction.x * speed_input
+		velocity.z = direction.z * speed_input
+	if fly:
+		velocity.y = move_toward(velocity.y, Input.get_axis("sink", "jump") * jump_vel, delta * 10)
+	else:
+		velocity.y -= gravity * delta
+	velocity = move_and_slide(velocity, Vector3.UP)
+	if Input.is_action_just_released("reset_player"):
+		translation = initial_position
+		rotation_degrees = initial_rotation
+		velocity = Vector3.ZERO
+	if Input.is_action_just_released("toggle_fly"):
+		fly = not fly
+	if Input.is_action_just_released("headlamp"):
+		match headlamp.light_energy:
+			0.0: headlamp.light_energy = 1.0
+			1.0: headlamp.light_energy = 2.0
+			2.0: headlamp.light_energy = 0.0
 		if get_tree().has_network_peer():
-			rpc("update", translation, rotation_degrees, camera_base.rotation_degrees.x)
-			var effect: AudioEffectCapture = AudioServer.get_bus_effect(AudioServer.get_bus_index("VoiceIn"), 0)
-			rpc("receive_voice_buffer", effect.get_buffer(effect.get_frames_available()))
+			Net.my_player["headlamp_energy"] = headlamp.light_energy
+			rpc("update_headlamp", headlamp.light_energy)
+	if get_tree().has_network_peer():
+		rpc("update", translation, rotation_degrees, camera_base.rotation_degrees.x)
+		var effect: AudioEffectCapture = AudioServer.get_bus_effect(AudioServer.get_bus_index("VoiceIn"), 0)
+		rpc("receive_voice_buffer", effect.get_buffer(effect.get_frames_available()))
 
 
 func initialize(id: int, info: Dictionary):
@@ -212,7 +209,7 @@ remote func receive_voice_buffer(buffer: PoolVector2Array):
 
 
 func _on_block_popup_about_to_show():
-	paused = true
+	get_tree().paused = true
 	blocks_list.select(selected_block)
 
 
@@ -222,4 +219,4 @@ func _on_block_selected(index: int):
 	block_dialog.hide()
 	selected_block = index
 	update_block_preview()
-	paused = false
+	get_tree().paused = false

@@ -108,6 +108,7 @@ align = 1
 valign = 1
 
 [node name="BlockPopup" type="PopupPanel" parent="CameraBase/Camera"]
+pause_mode = 2
 margin_right = 392.0
 margin_bottom = 264.0
 popup_exclusive = true

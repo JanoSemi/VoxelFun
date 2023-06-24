@@ -6,5 +6,6 @@
 [node name="Main" type="Node"]
 
 [node name="Game" parent="." instance=ExtResource( 1 )]
+pause_mode = 1
 
 [node name="PauseMenu" parent="." instance=ExtResource( 2 )]
