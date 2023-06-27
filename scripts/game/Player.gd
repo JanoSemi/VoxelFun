@@ -6,20 +6,15 @@ onready var stair_detector: RayCast = $StairDetector
 onready var camera_base = $CameraBase
 onready var raycast = $CameraBase/Camera/RayCast
 onready var info_label = $CameraBase/Camera/InfoLabel
-onready var selected_block_preview: TextureRect = $CameraBase/Camera/SelectedBlockPreview
-onready var selected_block_name: Label = $CameraBase/Camera/SelectedBlockPreview/NameLabel
-onready var block_dialog: PopupPanel = $CameraBase/Camera/BlockPopup
-onready var blocks_list: ItemList = $CameraBase/Camera/BlockPopup/List
 onready var headlamp: SpotLight = $CameraBase/Headlamp
 onready var voice_player: AudioStreamPlayer3D = $CameraBase/VoiceOut
 onready var voice_playback: AudioStreamGeneratorPlayback = voice_player.get_stream_playback()
+onready var block_management: Control = $CameraBase/Camera/BlockManagement
 # Reset values
 onready var initial_position: Vector3 = translation
 onready var initial_rotation: Vector3 = rotation_degrees
 
 var Chunk = load("res://scripts/game/Chunk.gd")
-var selected_block = 0
-export var blocks_texture: AtlasTexture
 
 var camera_x_rotation = 0
 
@@ -47,26 +42,7 @@ func finished():
 	is_finished = true
 	if not (not get_tree().has_network_peer() or is_network_master()):
 		return
-	update_block_preview()
 	voice_player.queue_free()
-	# Setup blocks list
-	blocks_list.clear()
-	var idx = 0
-	for block_name in Chunk.block_types:
-		var block = Chunk.block_types[block_name]
-		var preview = blocks_texture.duplicate()
-		if block.has(Chunk.Side.left):
-			preview.region.position = block[Chunk.Side.left] * 16
-		elif block.has(Chunk.Side.only):
-			preview.region.position = block[Chunk.Side.only] * 16
-		else:
-			preview.region.position = Vector2(-16, -16)
-		blocks_list.add_item(block_name, preview)
-		if block["Tags"].has(Chunk.Tags.Dont_List):
-			blocks_list.set_item_disabled(idx, true)
-		idx += 1
-	for block_name in Chunk.extra_blocks:
-		blocks_list.add_item(block_name, Chunk.extra_blocks[block_name]["Preview"])
 
 
 func _input(event):
@@ -100,12 +76,9 @@ func _physics_process(delta):
 			print("Click")
 			emit_signal("destroy_block", pos, norm, raycast.get_collider())
 		elif Input.is_action_just_pressed("right_click"):
-			emit_signal("place_block", pos, norm, selected_block)
+			emit_signal("place_block", pos, norm, block_management.selected_blocks[block_management.selected_block])
 	else:
 		emit_signal("unhighlight_block")
-	
-	if Input.is_action_just_released("open_block_dialog"):
-		block_dialog.popup_centered()
 	
 	var power_multipler = (Input.get_action_strength("run") + 1)
 	if Input.is_action_just_pressed("jump") and is_on_floor() and not fly:
@@ -172,25 +145,6 @@ func initialize(id: int, info: Dictionary):
 	finished()
 
 
-func update_block_preview():
-	if selected_block < Chunk.block_types.size():
-		var block_name = Chunk.block_types.keys()[selected_block]
-		var block = Chunk.block_types[block_name]
-		selected_block_preview.texture = blocks_texture
-		selected_block_name.text = block_name
-		if block.has(Chunk.Side.left):
-			blocks_texture.region.position = block[Chunk.Side.left] * 16
-		elif block.has(Chunk.Side.only):
-			blocks_texture.region.position = block[Chunk.Side.only] * 16
-		else:
-			blocks_texture.region.position = Vector2(-16, -16)
-	else:
-		var block_name = Chunk.extra_blocks.keys()[selected_block - Chunk.block_types.size()]
-		var block = Chunk.extra_blocks[block_name]
-		selected_block_preview.texture = block["Preview"]
-		selected_block_name.text = block_name
-
-
 remote func update(pos: Vector3, rot: Vector3, head_x: int):
 	translation = pos
 	rotation_degrees = rot
@@ -206,17 +160,3 @@ remote func receive_voice_buffer(buffer: PoolVector2Array):
 	for _i in range(0, buffer.size()):
 		if voice_playback.push_frame(buffer[frame]):
 			frame += 1
-
-
-func _on_block_popup_about_to_show():
-	get_tree().paused = true
-	blocks_list.select(selected_block)
-
-
-func _on_block_selected(index: int):
-	if index < Chunk.block_types.size() and Chunk.block_types.values()[index]["Tags"].has(Chunk.Tags.Dont_List):
-		return
-	block_dialog.hide()
-	selected_block = index
-	update_block_preview()
-	get_tree().paused = false
