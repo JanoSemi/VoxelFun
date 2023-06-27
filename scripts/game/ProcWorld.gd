@@ -42,6 +42,13 @@ func _ready():
 		file.close()
 		if typeof(data) == TYPE_DICTIONARY:
 			world_data = data
+	var save_timer = Timer.new()
+	save_timer.name = "SaveTimer"
+	save_timer.wait_time = 60
+	save_timer.autostart = true
+	save_timer.connect("timeout", self, "save_world")
+	save_timer.connect("timeout", Global, "save")
+	add_child(save_timer)
 
 
 func start_generating():
