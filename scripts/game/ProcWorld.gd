@@ -186,17 +186,5 @@ func enforce_render_distance(current_chunk_pos):
 			chunk_mutex.unlock()
 
 
-func _unload_chunk(cx, cz):
-	var c_pos = Vector2(cx, cz)
-	if _loaded_chunks.has(c_pos):
-		chunk_mutex.lock()
-		_loaded_chunks[c_pos].free()
-		_loaded_chunks.erase(c_pos)
-		chunk_mutex.unlock()
-		# Leaving this here because it is funny as hell
-		# Force it to just fucking chill after holy shit
-		# OS.delay_msec(50)
-
-
 func kill_thread():
 	bKill_thread = true
