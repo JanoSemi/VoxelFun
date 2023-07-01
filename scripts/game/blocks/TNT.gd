@@ -17,9 +17,9 @@ func _physics_process(_delta):
 remote func ignite():
 	animation_player.play("explode")
 	var changed_chunks: Array = []
-	for x in range(translation.x - 5, translation.x + 5):
-		for y in range(translation.y - 5, translation.y + 5):
-			for z in range(translation.z - 5, translation.z + 5):
+	for x in range(translation.x - remove_radius, translation.x + (remove_radius + 1)):
+		for y in range(translation.y - remove_radius, translation.y + (remove_radius + 1)):
+			for z in range(translation.z - (remove_radius + 1), translation.z + remove_radius):
 				var pos: Vector3 = Vector3(x, y, z)
 				# Calculate chunk
 				var chunk: Vector3 = pos / chunk_size
