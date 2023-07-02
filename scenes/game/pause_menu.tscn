@@ -155,63 +155,82 @@ margin_bottom = 156.0
 text = "Quit"
 
 [node name="SettingsDialog" type="ConfirmationDialog" parent="."]
-margin_right = 370.0
-margin_bottom = 126.0
+margin_right = 360.0
+margin_bottom = 168.0
 window_title = "Settings"
 script = ExtResource( 2 )
 
 [node name="GridContainer" type="GridContainer" parent="SettingsDialog"]
 margin_left = 8.0
 margin_top = 8.0
-margin_right = 362.0
-margin_bottom = 82.0
+margin_right = 352.0
+margin_bottom = 124.0
 columns = 2
 
-[node name="MasterLabel" type="Label" parent="SettingsDialog/GridContainer"]
-margin_right = 150.0
-margin_bottom = 22.0
-text = "Master Volume: "
+[node name="MuteLabel" type="Label" parent="SettingsDialog/GridContainer"]
+margin_top = 3.0
+margin_right = 140.0
+margin_bottom = 25.0
+text = "Mute: "
 
-[node name="MasterSlider" type="HSlider" parent="SettingsDialog/GridContainer"]
-margin_left = 154.0
-margin_right = 354.0
-margin_bottom = 16.0
+[node name="MuteButton" type="Button" parent="SettingsDialog/GridContainer"]
+margin_left = 144.0
+margin_right = 344.0
+margin_bottom = 28.0
 rect_min_size = Vector2( 200, 0 )
-max_value = 1.0
-step = 0.01
-value = 1.0
+toggle_mode = true
+text = "No"
 
 [node name="SFXLabel" type="Label" parent="SettingsDialog/GridContainer"]
-margin_top = 26.0
-margin_right = 150.0
-margin_bottom = 48.0
+margin_top = 32.0
+margin_right = 140.0
+margin_bottom = 54.0
 text = "SFX Volume: "
 
 [node name="SFXSlider" type="HSlider" parent="SettingsDialog/GridContainer"]
-margin_left = 154.0
-margin_top = 26.0
-margin_right = 354.0
-margin_bottom = 42.0
+margin_left = 144.0
+margin_top = 32.0
+margin_right = 344.0
+margin_bottom = 48.0
 rect_min_size = Vector2( 200, 0 )
 max_value = 1.0
 step = 0.01
 value = 1.0
 
 [node name="VoiceLabel" type="Label" parent="SettingsDialog/GridContainer"]
-margin_top = 52.0
-margin_right = 150.0
-margin_bottom = 74.0
+margin_top = 58.0
+margin_right = 140.0
+margin_bottom = 80.0
 text = "Voice Volume: "
 
 [node name="VoiceSlider" type="HSlider" parent="SettingsDialog/GridContainer"]
-margin_left = 154.0
-margin_top = 52.0
-margin_right = 354.0
-margin_bottom = 68.0
+margin_left = 144.0
+margin_top = 58.0
+margin_right = 344.0
+margin_bottom = 74.0
 rect_min_size = Vector2( 200, 0 )
 max_value = 1.0
 step = 0.01
 value = 1.0
+
+[node name="AutosaveCheckBox" type="CheckBox" parent="SettingsDialog/GridContainer"]
+margin_top = 84.0
+margin_right = 140.0
+margin_bottom = 116.0
+pressed = true
+text = "Autosave"
+
+[node name="AutosaveSpinBox" type="SpinBox" parent="SettingsDialog/GridContainer"]
+margin_left = 144.0
+margin_top = 84.0
+margin_right = 344.0
+margin_bottom = 116.0
+min_value = 0.5
+max_value = 60.0
+step = 0.5
+value = 2.0
+prefix = "every"
+suffix = "min"
 
 [node name="AboutDialog" type="AcceptDialog" parent="."]
 margin_right = 724.0
@@ -303,5 +322,6 @@ anims/show = SubResource( 2 )
 [connection signal="pressed" from="CenterContainer/VBoxContainer/QuitButton" to="." method="_quit"]
 [connection signal="about_to_show" from="SettingsDialog" to="SettingsDialog" method="_on_about_to_show"]
 [connection signal="confirmed" from="SettingsDialog" to="SettingsDialog" method="_on_confirmed"]
+[connection signal="toggled" from="SettingsDialog/GridContainer/MuteButton" to="SettingsDialog" method="_on_mute_button_toggled"]
 [connection signal="meta_clicked" from="AboutDialog/TabContainer/About" to="." method="_on_rich_text_label_meta_clicked"]
 [connection signal="meta_clicked" from="AboutDialog/TabContainer/Sources" to="." method="_on_rich_text_label_meta_clicked"]

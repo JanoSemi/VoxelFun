@@ -7,6 +7,7 @@ onready var Chunk = load("res://scripts/game/Chunk.gd")
 # Saving variables
 var world_path
 var world_data = {}
+var save_timer: Timer = Timer.new()
 
 # Thread variables No reason to declare these on startup just do it up here
 var thread = Thread.new()
@@ -42,13 +43,27 @@ func _ready():
 		file.close()
 		if typeof(data) == TYPE_DICTIONARY:
 			world_data = data
-	var save_timer = Timer.new()
 	save_timer.name = "SaveTimer"
-	save_timer.wait_time = 60
-	save_timer.autostart = true
+	save_timer.process_mode = Timer.TIMER_PROCESS_PHYSICS
+	# warning-ignore:return_value_discarded
 	save_timer.connect("timeout", self, "save_world")
+	# warning-ignore:return_value_discarded
 	save_timer.connect("timeout", Global, "save")
+	# warning-ignore:return_value_discarded
+	Global.connect("autosave_changed", self, "apply_autosave")
 	add_child(save_timer)
+	apply_autosave()
+
+
+func apply_autosave():
+	save_timer.wait_time = Global.autosave_interval * 60
+	if Global.autosave_enabled:
+		if save_timer.is_stopped():
+			print("Start Timer")
+			save_timer.start()
+	elif not save_timer.is_stopped():
+		print("Stop Timer")
+		save_timer.stop()
 
 
 func start_generating():

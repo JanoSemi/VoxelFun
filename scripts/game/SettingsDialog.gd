@@ -1,21 +1,30 @@
 extends ConfirmationDialog
 
 
-onready var master_slider: HSlider = $GridContainer/MasterSlider
+onready var mute_button: Button = $GridContainer/MuteButton
 onready var sfx_slider: HSlider = $GridContainer/SFXSlider
 onready var voice_slider: HSlider = $GridContainer/VoiceSlider
+onready var autosave_check_box: CheckBox = $GridContainer/AutosaveCheckBox
+onready var autosave_spin_box: SpinBox = $GridContainer/AutosaveSpinBox
 
 
 func _on_confirmed():
-	Global.master_volume = master_slider.value
+	Global.mute = mute_button.pressed
 	Global.sfx_volume = sfx_slider.value
 	Global.voice_volume = voice_slider.value
+	Global.autosave_enabled = autosave_check_box.pressed
+	Global.autosave_interval = autosave_spin_box.value
 	Global.save()
-	Global.apply()
 
 
 func _on_about_to_show():
 	Global.read()
-	master_slider.value = Global.master_volume
+	mute_button.pressed = Global.mute
 	sfx_slider.value = Global.sfx_volume
 	voice_slider.value = Global.voice_volume
+	autosave_check_box.pressed = Global.autosave_enabled
+	autosave_spin_box.value = Global.autosave_interval
+
+
+func _on_mute_button_toggled(button_pressed: bool):
+	mute_button.text = "Yes" if button_pressed else "No"
