@@ -19,10 +19,6 @@ var delete_idx
 
 
 func _ready():
-	if OS.is_debug_build():
-		OS.window_fullscreen = false
-		OS.window_size = Vector2(ProjectSettings.get("display/window/size/width"), ProjectSettings.get("display/window/size/height"))
-		OS.center_window()
 	load_worlds()
 
 

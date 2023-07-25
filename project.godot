@@ -48,6 +48,7 @@ Net="*res://scripts/Network.gd"
 
 window/size/height=576
 window/size/fullscreen=true
+window/size/fullscreen.debug=false
 
 [gui]
 
