@@ -75,7 +75,7 @@ autoplay = true
 bus = "Voice"
 
 [node name="Camera" type="Camera" parent="CameraBase"]
-far = 500.0
+far = 1000.0
 
 [node name="VoiceIn" type="AudioStreamPlayer" parent="CameraBase/Camera"]
 stream = SubResource( 6 )
