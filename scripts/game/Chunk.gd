@@ -1,7 +1,5 @@
 extends StaticBody
 
-const DIMENSION = Vector3(16,50,16)
-
 # Ensures terrain gen does not elongate based on chunk size/resolution so terrain at a chunk 30 blocks tall still looks the same as a 50 block tall chunk
 # It ensures structures and trees have the ability to grow should 
 const Gen_Height = 50
@@ -9,8 +7,6 @@ const Gen_Height = 50
 # Moves terrain height up and down chunk 
 # NOTE: this is applied after the gen height calculation, that means it will affect the final output of Gen_Height
 const Block_offset = 1
-
-const SHEEP = preload("res://scenes/game/creatures/sheep.tscn")
 
 var mat = preload("res://assets/TextureAtlasMaterial.tres")
 var rng = RandomNumberGenerator.new()
@@ -75,8 +71,9 @@ func _ready():
 
 
 func _set_block_data(x, y, z, b, overwrite = true, overwrite_world_data = true):
-	if x >= 0 and x < DIMENSION.x and y >= 0 and y < DIMENSION.y and z >= 0 and z < DIMENSION.z:
-		if (overwrite_world_data or not world.world_data.has("%d,%d,%d,%d,%d" % [x, y, z, chunk_coord.x, chunk_coord.y])) and (overwrite or _block_data[x][y][z].type == "Air"):
+	if x >= 0 and x < Global.CHUNK_DIMENSION.x and y >= 0 and y < Global.CHUNK_DIMENSION.y and z >= 0 and z < Global.CHUNK_DIMENSION.z:
+		var ckey = world.get_chunk_key(chunk_coord.x, chunk_coord.y, false)
+		if (overwrite_world_data or not (world.world_data.has(ckey) and world.world_data[ckey].has("%d,%d,%d" % [x, y, z]))) and (overwrite or _block_data[x][y][z].type == "Air"):
 			_block_data[x][y][z] = b
 
 
@@ -86,39 +83,36 @@ func generate(w, cx, cz):
 	rng.set_seed(cx*1000+cz) # Arbitrary
 	
 	chunk_coord = Vector2(cx, cz)
-	self.translation = Vector3(cx * DIMENSION.x, 0, cz * DIMENSION.z)
+	self.translation = Vector3(cx * Global.CHUNK_DIMENSION.x, 0, cz * Global.CHUNK_DIMENSION.z)
+	
+	var ckey = world.get_chunk_key(cx, cz, false)
 	
 	# Generate block data
 	var ground_height = []
 	
-	_block_data.resize(DIMENSION.x)
-	ground_height.resize(DIMENSION.x)
-	for x in DIMENSION.x:
+	_block_data.resize(Global.CHUNK_DIMENSION.x)
+	ground_height.resize(Global.CHUNK_DIMENSION.x)
+	for x in Global.CHUNK_DIMENSION.x:
 		_block_data[x] = []
-		_block_data[x].resize(DIMENSION.y)
+		_block_data[x].resize(Global.CHUNK_DIMENSION.y)
 		ground_height[x] = []
-		ground_height[x].resize(DIMENSION.z)
-		for y in DIMENSION.y:
+		ground_height[x].resize(Global.CHUNK_DIMENSION.z)
+		for y in Global.CHUNK_DIMENSION.y:
 			_block_data[x][y] = []
-			_block_data[x][y].resize(DIMENSION.z)
-			for z in DIMENSION.z:
+			_block_data[x][y].resize(Global.CHUNK_DIMENSION.z)
+			for z in Global.CHUNK_DIMENSION.z:
 				var b = BlockData.new()
-				var h_noise = (world.height_noise.get_noise_2d(x + cx * DIMENSION.x, z + cz * DIMENSION.z) + 1) / 2.0
+				var h_noise = (world.height_noise.get_noise_2d(x + cx * Global.CHUNK_DIMENSION.x, z + cz * Global.CHUNK_DIMENSION.z) + 1) / 2.0
 				ground_height[x][z] = int(h_noise * (Gen_Height - 1) + 1) + Block_offset
 				# Load data if exist
-				var key = "%d,%d,%d,%d,%d" % [x, y, z, cx, cz]
-				if world.world_data.has(key):
-					b.create(world.world_data[key])
+				var bkey = "%d,%d,%d" % [x, y, z]
+				if world.world_data.has(ckey) and world.world_data[ckey].has(bkey):
+					b.create(world.world_data[ckey][bkey])
 				else:
 					b.create(generator.generate_surface(ground_height[x][z], x, y, z))
 				_set_block_data(x, y, z, b)
 	
 	generator.generate_details(self, rng, ground_height)
-
-	if rng.randf() > 0.8:
-		var sheep = SHEEP.instance()
-		sheep.translation = Vector3((DIMENSION.x / 2), (DIMENSION.y * 2), (DIMENSION.z / 2))
-		add_child(sheep)
 
 
 func update():
@@ -133,14 +127,14 @@ func update():
 	
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	cst.begin(Mesh.PRIMITIVE_TRIANGLES)
-	blocks.resize(DIMENSION.x)
-	for x in DIMENSION.x:
+	blocks.resize(Global.CHUNK_DIMENSION.x)
+	for x in Global.CHUNK_DIMENSION.x:
 		blocks[x] = []
-		blocks[x].resize(DIMENSION.y)
-		for y in DIMENSION.y:
+		blocks[x].resize(Global.CHUNK_DIMENSION.y)
+		for y in Global.CHUNK_DIMENSION.y:
 			blocks[x][y] = []
-			blocks[x][y].resize(DIMENSION.z)
-			for z in DIMENSION.z:
+			blocks[x][y].resize(Global.CHUNK_DIMENSION.z)
+			for z in Global.CHUNK_DIMENSION.z:
 				# Now we create blocks
 				var block_type = _block_data[x][y][z].type
 				if block_type != "Air":
@@ -232,7 +226,7 @@ func check_transparent_neighbours(x, y, z):
 
 
 func is_block_transparent(x, y, z):
-	if x < 0 or x >= DIMENSION.x or z < 0 or z >= DIMENSION.z or y < 0 or y >= DIMENSION.y:
+	if x < 0 or x >= Global.CHUNK_DIMENSION.x or z < 0 or z >= Global.CHUNK_DIMENSION.z or y < 0 or y >= Global.CHUNK_DIMENSION.y:
 		# For out of bounds lets still show the face
 		return true
 	else:

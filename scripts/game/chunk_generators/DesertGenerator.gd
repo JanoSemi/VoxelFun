@@ -16,8 +16,8 @@ static func generate_details(c, rng, ground_height):
 	# Now generate cactus
 	var cactus_width = 2
 	for _n_cactus in range(0, rng.randi_range(0, 3)):
-		var x = rng.randi_range(cactus_width, c.DIMENSION.x - cactus_width - 1)
-		var z = rng.randi_range(cactus_width, c.DIMENSION.z - cactus_width - 1)
+		var x = rng.randi_range(cactus_width, Global.CHUNK_DIMENSION.x - cactus_width - 1)
+		var z = rng.randi_range(cactus_width, Global.CHUNK_DIMENSION.z - cactus_width - 1)
 		# Place a cactus at this position up to some height
 		var cactus_height = rng.randi_range(5, 7)
 		for i in range(0, cactus_height):
@@ -50,8 +50,8 @@ static func generate_details(c, rng, ground_height):
 						c._set_block_data(x + offset.x, y, z + offset.z, b, false, false)
 	# Now some tufts of grass
 	for _n_shrub in range(0, rng.randi_range(0, 5)):
-		var x = rng.randi_range(0, c.DIMENSION.x - 1)
-		var z = rng.randi_range(0, c.DIMENSION.z - 1)
+		var x = rng.randi_range(0, Global.CHUNK_DIMENSION.x - 1)
+		var z = rng.randi_range(0, Global.CHUNK_DIMENSION.z - 1)
 		var y = ground_height[x][z]
 		var b = c.BlockData.new()
 		b.create("Shrub")

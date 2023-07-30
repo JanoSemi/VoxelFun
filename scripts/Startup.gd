@@ -2,7 +2,7 @@ extends Control
 
 
 const MAIN_SCENE: PackedScene = preload("res://scenes/game/main.tscn")
-const WORLDS_DIR: String = "user://worlds/"
+const WORLDS_DIR: String = "user://worlds_v2/"
 onready var name_line_edit: LineEdit = $MarginContainer/Page1/VBoxContainer/NameLineEdit
 onready var address_line_edit: LineEdit = $MarginContainer/Page1/VBoxContainer/HBoxContainer/AddressLineEdit
 onready var worlds_list: ItemList = $MarginContainer/Page2/WorldsList

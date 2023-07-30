@@ -18,8 +18,8 @@ static func generate_details(c, rng, ground_height):
 	# Now generate trees
 	var tree_width = 2
 	for _n_tree in range(0, rng.randi_range(2, 8)):
-		var pos_x = rng.randi_range(tree_width, c.DIMENSION.x - tree_width - 1)
-		var pos_z = rng.randi_range(tree_width, c.DIMENSION.z - tree_width - 1)
+		var pos_x = rng.randi_range(tree_width, Global.CHUNK_DIMENSION.x - tree_width - 1)
+		var pos_z = rng.randi_range(tree_width, Global.CHUNK_DIMENSION.z - tree_width - 1)
 		# Place a log at this position up to some height
 		var tree_height = rng.randi_range(5, 7)
 		for i in range(0, tree_height):

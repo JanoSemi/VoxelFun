@@ -1,12 +1,12 @@
 extends Spatial
 
 const PLAYER = preload("res://scenes/game/player.tscn")
-var initial_world_path = "user://worlds/default"
+var initial_world_path = "user://worlds_v2/default"
 var initial_world_type = null
 onready var money_label: Label = $MoneyView/CenterContainer/Label
 var pw
 onready var players: Spatial = $Players
-onready var player: Player
+var player: Player
 onready var block_outline = $BlockOutline
 
 var Chunk = load("res://scripts/game/Chunk.gd")
@@ -40,12 +40,12 @@ func _ready():
 	# Create world
 	print("CREATING WORLD")
 	pw = ProcWorld.new(initial_world_path)
+	add_child(pw)
 	if not get_tree().has_network_peer() or get_tree().is_network_server():
 		if initial_world_type != null:
 			pw.world_data["type"] = initial_world_type
 		pw.start_generating()
 		$ModalMessage.hide()
-	add_child(pw)
 	# Save and kill map loading on exit
 	# warning-ignore:return_value_discarded
 	self.connect("tree_exiting", self, "_on_tree_exiting")
@@ -64,8 +64,8 @@ func _ready():
 func _process(_delta):
 	# Check the players chunk position and see if it has changed
 	if player != null and pw != null and pw.mutex != null:
-		var chunk_x = floor(player.translation.x / Chunk.DIMENSION.x)
-		var chunk_z = floor(player.translation.z / Chunk.DIMENSION.z)
+		var chunk_x = floor(player.translation.x / Global.CHUNK_DIMENSION.x)
+		var chunk_z = floor(player.translation.z / Global.CHUNK_DIMENSION.z)
 		var new_chunk_pos = Vector2(chunk_x, chunk_z)
 	
 		# If its a new chunk update for the ProcWorld thread
@@ -81,7 +81,6 @@ func _process(_delta):
 
 func load_player() -> Player:
 	var p = PLAYER.instance()
-	p.translation = Vector3(0, 50, 0)
 	players.add_child(p)
 	return p
 
@@ -127,13 +126,13 @@ func _on_player_destroy_block(pos, norm, collider):
 		pos -= norm * 0.5
 		
 		# Get chunk from pos
-		var cx = int(floor(pos.x / Chunk.DIMENSION.x))
-		var cz = int(floor(pos.z / Chunk.DIMENSION.z))
+		var cx = int(floor(pos.x / Global.CHUNK_DIMENSION.x))
+		var cz = int(floor(pos.z / Global.CHUNK_DIMENSION.z))
 		
 		# Get block from pos
-		var bx = fposmod(floor(pos.x), Chunk.DIMENSION.x) + 0.5
-		var by = fposmod(floor(pos.y), Chunk.DIMENSION.y) + 0.5
-		var bz = fposmod(floor(pos.z), Chunk.DIMENSION.z) + 0.5
+		var bx = fposmod(floor(pos.x), Global.CHUNK_DIMENSION.x) + 0.5
+		var by = fposmod(floor(pos.y), Global.CHUNK_DIMENSION.y) + 0.5
+		var bz = fposmod(floor(pos.z), Global.CHUNK_DIMENSION.z) + 0.5
 		#pw.change_block(cx, cz, bx, by, bz, "Air")
 		pw.call_deferred("change_block", cx, cz, bx, by, bz, "Air")
 
@@ -143,19 +142,19 @@ func _on_player_place_block(pos, norm, t):
 	pos += norm * 0.5
 	
 	# Get chunk from pos
-	var cx = int(floor(pos.x / Chunk.DIMENSION.x))
-	var cz = int(floor(pos.z / Chunk.DIMENSION.z))
+	var cx = int(floor(pos.x / Global.CHUNK_DIMENSION.x))
+	var cz = int(floor(pos.z / Global.CHUNK_DIMENSION.z))
 	
 	# Get block from pos
-	var bx = fposmod(floor(pos.x), Chunk.DIMENSION.x) + 0.5
-	var by = fposmod(floor(pos.y), Chunk.DIMENSION.y) + 0.5
-	var bz = fposmod(floor(pos.z), Chunk.DIMENSION.z) + 0.5
+	var bx = fposmod(floor(pos.x), Global.CHUNK_DIMENSION.x) + 0.5
+	var by = fposmod(floor(pos.y), Global.CHUNK_DIMENSION.y) + 0.5
+	var bz = fposmod(floor(pos.z), Global.CHUNK_DIMENSION.z) + 0.5
 	
 	if t < Chunk.block_types.size():
 		#pw.change_block(cx, cz, bx, by, bz, Chunk.block_types.keys()[t])
 		pw.call_deferred("change_block", cx, cz, bx, by, bz, Chunk.block_types.keys()[t])
 	else:
-		var bpos = Vector3(((cx * Chunk.DIMENSION.x) + bx), by, ((cz * Chunk.DIMENSION.z) + bz))
+		var bpos = Vector3(((cx * Global.CHUNK_DIMENSION.x) + bx), by, ((cz * Global.CHUNK_DIMENSION.z) + bz))
 		var idx = t - Chunk.block_types.size()
 		var bname = str(get_child_count())
 		var id = get_tree().get_network_unique_id() if get_tree().has_network_peer() else -1
@@ -170,7 +169,7 @@ remote func add_block_instance(bpos: Vector3, index: int, id: int, bname: String
 	var block_instance: Spatial = Chunk.extra_blocks.values()[index]["Instance"].instance()
 	if get_tree().has_network_peer():
 		block_instance.set_network_master(id)
-	block_instance.chunk_size = Chunk.DIMENSION
+	block_instance.chunk_size = Global.CHUNK_DIMENSION
 	block_instance.pw = pw
 	block_instance.translation = bpos
 	block_instance.name = "ExtraBlock%s" % bname

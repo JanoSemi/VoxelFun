@@ -9,9 +9,9 @@ extents = Vector3( 0.35, 0.6, 0.6 )
 [node name="Sheep" instance=ExtResource( 2 )]
 animation_speed = 1.2
 animation_name = "WalkCycle"
+creature_name = "Sheep"
 
 [node name="Model" parent="." index="0" instance=ExtResource( 1 )]
-transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0 )
 
 [node name="CollisionShape" type="CollisionShape" parent="." index="1"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0 )

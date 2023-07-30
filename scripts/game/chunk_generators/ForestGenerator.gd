@@ -18,8 +18,8 @@ static func generate_details(c, rng, ground_height):
 	# Now generate trees
 	var tree_width = 2
 	for _n_tree in range(0, rng.randi_range(2, 8)):
-		var pos_x = rng.randi_range(tree_width, c.DIMENSION.x - tree_width - 1)
-		var pos_z = rng.randi_range(tree_width, c.DIMENSION.z - tree_width - 1)
+		var pos_x = rng.randi_range(tree_width, Global.CHUNK_DIMENSION.x - tree_width - 1)
+		var pos_z = rng.randi_range(tree_width, Global.CHUNK_DIMENSION.z - tree_width - 1)
 
 		# Place a log at this position up to some height
 		var tree_height = rng.randi_range(4, 8)
@@ -47,15 +47,15 @@ static func generate_details(c, rng, ground_height):
 					c._set_block_data(lx, ly, lz, l, false, false)
 	# Now some tufts of grass
 	for _n_shrub in range(0, rng.randi_range(6, 10)):
-		var x = rng.randi_range(0, c.DIMENSION.x - 1)
-		var z = rng.randi_range(0, c.DIMENSION.z - 1)
+		var x = rng.randi_range(0, Global.CHUNK_DIMENSION.x - 1)
+		var z = rng.randi_range(0, Global.CHUNK_DIMENSION.z - 1)
 		var y = ground_height[x][z]
 		var b = c.BlockData.new()
 		b.create("Tall_Grass")
 		c._set_block_data(x, y, z, b, false, false)
 	for _n_flower in range(0, rng.randi_range(4, 6)):
-		var x = rng.randi_range(0, c.DIMENSION.x - 1)
-		var z = rng.randi_range(0, c.DIMENSION.z - 1)
+		var x = rng.randi_range(0, Global.CHUNK_DIMENSION.x - 1)
+		var z = rng.randi_range(0, Global.CHUNK_DIMENSION.z - 1)
 		var y = ground_height[x][z]
 		var b = c.BlockData.new()
 		b.create("Flower")

@@ -12,14 +12,14 @@ dest_files=[ "res://.import/sheep.glb-271f6e52ba7905a49dcb9e4b9119a76e.scn" ]
 [params]
 
 nodes/root_type="Spatial"
-nodes/root_name="SheepModel"
+nodes/root_name="Model"
 nodes/root_scale=1.0
 nodes/custom_script=""
 nodes/storage=0
 nodes/use_legacy_names=false
 materials/location=1
 materials/storage=1
-materials/keep_on_reimport=true
+materials/keep_on_reimport=false
 meshes/octahedral_compression=true
 meshes/compress=4286
 meshes/ensure_tangents=true
@@ -29,7 +29,7 @@ meshes/lightmap_texel_size=0.1
 skins/use_named_skins=true
 external_files/store_in_subdir=false
 animation/import=true
-animation/fps=15
+animation/fps=24.0
 animation/filter_script=""
 animation/storage=false
 animation/keep_custom_tracks=false

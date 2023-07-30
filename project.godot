@@ -15,12 +15,18 @@ _global_script_classes=[ {
 "path": "res://scripts/game/chunk_generators/BaseGenerator.gd"
 }, {
 "base": "KinematicBody",
+"class": "Creature",
+"language": "GDScript",
+"path": "res://scripts/game/Creature.gd"
+}, {
+"base": "KinematicBody",
 "class": "Player",
 "language": "GDScript",
 "path": "res://scripts/game/Player.gd"
 } ]
 _global_script_class_icons={
 "ChunkGenerator": "",
+"Creature": "",
 "Player": ""
 }
 
@@ -145,7 +151,7 @@ inventory={
 , Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":16777218,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
  ]
 }
-reset_player={
+respawn={
 "deadzone": 0.5,
 "events": [ Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"alt":false,"shift":false,"control":false,"meta":false,"command":false,"pressed":false,"scancode":82,"physical_scancode":0,"unicode":0,"echo":false,"script":null)
  ]

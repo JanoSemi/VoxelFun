@@ -12,7 +12,7 @@ onready var voice_playback: AudioStreamGeneratorPlayback = voice_player.get_stre
 onready var block_management: Control = $CameraBase/Camera/BlockManagement
 # Reset values
 onready var initial_position: Vector3 = translation
-onready var initial_rotation: Vector3 = rotation_degrees
+onready var initial_rotation: Vector2 = Vector2(camera_x_rotation, rotation_degrees.y)
 
 var Chunk = load("res://scripts/game/Chunk.gd")
 
@@ -61,11 +61,11 @@ func _input(event):
 func _physics_process(delta):
 	if not (not get_tree().has_network_peer() or is_network_master()) or not is_finished:
 		return
-	var cx = floor(self.translation.x / Chunk.DIMENSION.x)
-	var cz = floor(self.translation.z / Chunk.DIMENSION.z)
-	var px = self.translation.x - cx * Chunk.DIMENSION.x
+	var cx = floor(self.translation.x / Global.CHUNK_DIMENSION.x)
+	var cz = floor(self.translation.z / Global.CHUNK_DIMENSION.z)
+	var px = self.translation.x - cx * Global.CHUNK_DIMENSION.x
 	var py = self.translation.y
-	var pz = self.translation.z - cz * Chunk.DIMENSION.z
+	var pz = self.translation.z - cz * Global.CHUNK_DIMENSION.z
 	info_label.text = "Chunk (%d, %d) pos (%d, %d, %d)" % [cx, cz, px, py, pz]
 	# Check the raycast
 	if raycast.is_colliding():
@@ -110,10 +110,8 @@ func _physics_process(delta):
 	else:
 		velocity.y -= gravity * delta
 	velocity = move_and_slide(velocity, Vector3.UP)
-	if Input.is_action_just_released("reset_player"):
-		translation = initial_position
-		rotation_degrees = initial_rotation
-		velocity = Vector3.ZERO
+	if Input.is_action_just_released("respawn"):
+		respawn()
 	if Input.is_action_just_released("toggle_fly"):
 		fly = not fly
 	if Input.is_action_just_released("headlamp"):
@@ -143,6 +141,14 @@ func initialize(id: int, info: Dictionary):
 		stair_detector.queue_free()
 		$CameraBase/Camera.queue_free()
 	finished()
+
+
+func respawn():
+	translation = initial_position
+	camera_base.rotation_degrees.x = -initial_rotation.x
+	camera_x_rotation = initial_rotation.x
+	rotation_degrees.y = initial_rotation.y
+	velocity = Vector3.ZERO
 
 
 remote func update(pos: Vector3, rot: Vector3, head_x: int):

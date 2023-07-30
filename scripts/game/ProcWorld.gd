@@ -1,8 +1,11 @@
 extends Spatial
 
+const SHEEP: PackedScene = preload("res://scenes/game/creatures/sheep.tscn")
 var height_noise = OpenSimplexNoise.new()
 
 onready var Chunk = load("res://scripts/game/Chunk.gd")
+
+onready var player: Player = get_parent().player
 
 # Saving variables
 var world_path
@@ -25,7 +28,6 @@ var _last_chunk = Vector2()
 
 var _kill_thread = false
 
-const load_radius = 5
 var current_load_radius = 0
 
 
@@ -34,15 +36,17 @@ func _init(path):
 
 
 func _ready():
+	# Init node
 	name = "ProcWorld"
 	pause_mode = Node.PAUSE_MODE_PROCESS
+	# Load
 	var file = File.new()
 	if world_path and file.file_exists(world_path):
 		file.open(world_path, File.READ)
-		var data = file.get_var()
+		var data = parse_json(file.get_as_text())
 		file.close()
-		if typeof(data) == TYPE_DICTIONARY:
-			world_data = data
+		world_data = data
+	# Init autosave
 	save_timer.name = "SaveTimer"
 	save_timer.process_mode = Timer.TIMER_PROCESS_PHYSICS
 	# warning-ignore:return_value_discarded
@@ -69,6 +73,14 @@ func apply_autosave():
 func start_generating():
 	if thread.is_active():
 		return
+	# Init player
+	player.initial_position = str2vec3(world_data["spawn_position"]) if world_data.has("spawn_position") else Vector3(0.5, 50, 0.5)
+	if world_data.has("spawn_rotation"):
+		var parts = world_data["spawn_rotation"].split_floats(",")
+		player.initial_rotation = Vector2(parts[0], parts[1])
+	if world_data.has("flying"):
+		player.fly = world_data["flying"]
+	player.respawn()
 	thread.start(self, "_thread_gen")
 	height_noise.period = 100
 
@@ -77,9 +89,14 @@ func save_world():
 	if not world_path:
 		return
 	print("Saving world")
+	# Apply player pos
+	world_data["spawn_position"] = "%.2f,%.2f,%.2f" % [player.translation.x, player.translation.y, player.translation.z]
+	world_data["spawn_rotation"] = "%.0f,%.0f" % [player.camera_x_rotation, player.rotation_degrees.y]
+	world_data["flying"] = player.fly
+	# Save
 	var file = File.new()
 	file.open(world_path, File.WRITE)
-	file.store_var(world_data)
+	file.store_string(to_json(world_data))
 	file.close()
 
 
@@ -120,7 +137,7 @@ func _thread_gen(_userdata):
 					_last_chunk = _load_chunk(_last_chunk.x, _last_chunk.y - 1)
 				else:
 					# We increment here idk why
-					if current_load_radius < load_radius:
+					if current_load_radius < Global.load_radius:
 						current_load_radius += 1
 			else:
 				# Either go left or down
@@ -131,7 +148,7 @@ func _thread_gen(_userdata):
 				elif delta_pos.x == current_load_radius or delta_pos.x == -delta_pos.y:
 					# Go down
 					# Stop the last one where we'd go over the limit
-					if delta_pos.y < load_radius:
+					if delta_pos.y < Global.load_radius:
 						_last_chunk = _load_chunk(_last_chunk.x, _last_chunk.y + 1)
 
 
@@ -140,7 +157,7 @@ func update_player_pos(new_pos):
 
 
 func change_block(cx, cz, bx, by, bz, t, update = true, rpc = true):
-	world_data["%d,%d,%d,%d,%d" % [bx, by, bz, cx, cz]] = t
+	world_data[get_chunk_key(cx, cz)]["%d,%d,%d" % [bx, by, bz]] = t
 	if get_tree().has_network_peer() and rpc:
 		rpc("change_block_remote", cx, cz, bx, by, bz, t, update)
 	var c_pos = Vector2(cx, cz)
@@ -157,7 +174,7 @@ func change_block(cx, cz, bx, by, bz, t, update = true, rpc = true):
 
 
 remote func change_block_remote(cx, cz, bx, by, bz, t, update = true):
-	world_data["%d,%d,%d,%d,%d" % [bx, by, bz, cx, cz]] = t
+	world_data[get_chunk_key(cx, cz)]["%d,%d,%d" % [bx, by, bz]] = t
 	var c_pos = Vector2(cx, cz)
 	if _loaded_chunks.has(c_pos):
 		var c = _loaded_chunks[c_pos]
@@ -165,6 +182,14 @@ remote func change_block_remote(cx, cz, bx, by, bz, t, update = true):
 			c._block_data[bx][by][bz].create(t)
 			if update:
 				_update_chunk(cx, cz)
+
+
+func get_chunk_key(cx: int, cz: int, create: bool = true) -> String:
+	var ckey = "%d,%d" % [cx, cz]
+	if create and not world_data.has(ckey):
+		world_data[ckey] = {}
+	return ckey
+
 
 
 func _load_chunk(cx, cz):
@@ -178,7 +203,52 @@ func _load_chunk(cx, cz):
 		chunk_mutex.lock()
 		_loaded_chunks[c_pos] = c
 		chunk_mutex.unlock()
+		# Generate sheeps
+		var ckey = get_chunk_key(cx, cz, false)
+		if (not world_data.has(ckey) or not world_data[ckey].has("HasSheep")) and c.rng.randf() > 0.8:
+			create_creature(
+				"Sheep",
+				"SheepX%dZ%d" % [cx, cz],
+				Vector3(((cx * Global.CHUNK_DIMENSION.x) + (Global.CHUNK_DIMENSION.x / 2)), Global.CHUNK_DIMENSION.y, ((cz * Global.CHUNK_DIMENSION.z) + (Global.CHUNK_DIMENSION.z / 2))),
+				Vector3(0, randf() * 360.0, 0),
+				0.0,
+				0.0
+			)
+			world_data[get_chunk_key(cx, cz)]["HasSheep"] = true
+		if world_data.has(ckey) and world_data[ckey].has("Creatures"):
+			var creatures = world_data[ckey]["Creatures"]
+			for cn in creatures:
+				var cd = creatures[cn]
+				create_creature(
+					cd["type"],
+					cn,
+					str2vec3(cd.get("position", "0,0,0")),
+					str2vec3(cd.get("rotation", "0,0,0")),
+					cd.get("position_y_velocity", 0.0),
+					cd.get("rotation_y_velocity", 0.0)
+				)
 	return c_pos
+
+
+func create_creature(ctype: String, cname: String, cposition: Vector3, crotation: Vector3, cposition_y_velocity: float, crotation_y_velocity: float):
+	var creature: Creature
+	match ctype:
+		"Sheep":
+			creature = SHEEP.instance()
+		_:
+			return
+	creature.name = cname
+	creature.translation = cposition
+	creature.rotation_degrees = crotation
+	creature.velocity.y = cposition_y_velocity
+	creature.rotation_velocity = crotation_y_velocity
+	creature.pw = self
+	add_child(creature)
+
+
+func str2vec3(string: String) -> Vector3:
+	var parts = string.split_floats(",")
+	return Vector3(parts[0], parts[1], parts[2])
 
 
 func _update_chunk(cx, cz):
@@ -194,7 +264,7 @@ func enforce_render_distance(current_chunk_pos):
 		# Checks and deletes the offending chunks all in one go 
 	for v in _loaded_chunks.keys():
 		# Anywhere you directly interface with chunks outside of unloading
-		if abs(v.x - current_chunk_pos.x) > load_radius or abs(v.y - current_chunk_pos.y) > load_radius:
+		if abs(v.x - current_chunk_pos.x) > Global.load_radius or abs(v.y - current_chunk_pos.y) > Global.load_radius:
 			chunk_mutex.lock()
 			_loaded_chunks[v].free()
 			_loaded_chunks.erase(v)

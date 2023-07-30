@@ -17,6 +17,9 @@ const VOICE_VOLUME: String = "voice_volume"
 const AUTOSAVE_SECTION: String = "Autosave"
 const AUTOSAVE_ENABLED: String = "autosave_enabled"
 const AUTOSAVE_INTERVAL: String = "autosave_interval"
+const WORLD_LOADING_SECTION: String = "world_loading"
+const LOAD_RADIUS: String = "load_radius"
+const CHUNK_HEIGHT: String = "chunk_height"
 # Config values
 var money: int = 0
 var diamonds: int = 0
@@ -26,6 +29,9 @@ var sfx_volume: float = 1.0 setget _set_sfx_volume
 var voice_volume: float = 1.0 setget _set_voice_volume
 var autosave_enabled: bool = true setget _set_autosave_enabled
 var autosave_interval: float = 2.0 setget _set_autosave_interval
+var load_radius: int = 10
+# Chunk dimension
+var CHUNK_DIMENSION: Vector3 = Vector3(16, 100, 16)
 
 
 func _ready():
@@ -57,6 +63,8 @@ func read():
 	voice_volume = config_file.get_value(SOUND_SECTION, VOICE_VOLUME, voice_volume)
 	autosave_enabled = config_file.get_value(AUTOSAVE_SECTION, AUTOSAVE_ENABLED, autosave_enabled)
 	autosave_interval = config_file.get_value(AUTOSAVE_SECTION, AUTOSAVE_INTERVAL, autosave_interval)
+	load_radius = config_file.get_value(WORLD_LOADING_SECTION, LOAD_RADIUS, load_radius)
+	CHUNK_DIMENSION.y = config_file.get_value(WORLD_LOADING_SECTION, CHUNK_HEIGHT, CHUNK_DIMENSION.y)
 
 
 func save():
@@ -69,6 +77,8 @@ func save():
 	config_file.set_value(SOUND_SECTION, VOICE_VOLUME, voice_volume)
 	config_file.set_value(AUTOSAVE_SECTION, AUTOSAVE_ENABLED, autosave_enabled)
 	config_file.set_value(AUTOSAVE_SECTION, AUTOSAVE_INTERVAL, autosave_interval)
+	config_file.set_value(WORLD_LOADING_SECTION, LOAD_RADIUS, load_radius)
+	config_file.set_value(WORLD_LOADING_SECTION, CHUNK_HEIGHT, CHUNK_DIMENSION.y)
 	config_file.save(CONFIG_PATH)
 
 
