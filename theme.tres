@@ -23,6 +23,10 @@ font_data = ExtResource( 2 )
 
 [resource]
 default_font = SubResource( 4 )
+MarginContainer/constants/margin_bottom = 20
+MarginContainer/constants/margin_left = 20
+MarginContainer/constants/margin_right = 20
+MarginContainer/constants/margin_top = 20
 RichTextLabel/fonts/bold_font = SubResource( 1 )
 RichTextLabel/fonts/bold_italics_font = SubResource( 2 )
 RichTextLabel/fonts/italics_font = SubResource( 3 )
