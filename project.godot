@@ -180,6 +180,7 @@ ignite_tnt={
 
 file_logging/log_path="user://logs/voxelfun.log"
 file_logging/max_log_files=20
+file_logging/log_path.debug="user://logs/voxelfun.debug.log"
 
 [rendering]
 
